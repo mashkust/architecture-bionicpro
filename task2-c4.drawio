@@ -1,0 +1,88 @@
+<mxfile host="65bd71144e">
+    <diagram id="7rW4Ty7C4tza7TNxfSiq" name="Reports">
+        <mxGraphModel dx="2358" dy="2106" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-328" parent="1" style="whiteSpace=wrap;html=1;strokeColor=none;" value="" vertex="1">
+                    <mxGeometry height="810" width="1980" x="120" y="320" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-1" parent="1" style="rounded=1;whiteSpace=wrap;dashed=1;fillColor=none;strokeColor=#666666;fontColor=#333333;verticalAlign=top;align=left;spacingLeft=10;arcSize=5;" value="BionicPRO [Software System]" vertex="1">
+                    <mxGeometry height="750" width="1660" x="420" y="350" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-2" parent="1" style="shape=mxgraph.c4.person2;whiteSpace=wrap;fillColor=#6C6477;strokeColor=#4D4D4D;fontColor=#ffffff;align=center;" value="Пилот протеза&#xa;[Person]" vertex="1">
+                    <mxGeometry height="180" width="200" x="130" y="635" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-3" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;" value="Приложение для донастройки протеза&#xa;[Container: Android]&#xa;Экран «Отчёт о работе протеза»" vertex="1">
+                    <mxGeometry height="120" width="240" x="460" y="670" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-4" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#008a00;fontColor=#ffffff;strokeColor=#005700;" value="bionicpro-auth (BFF)&#xa;[Container: Java, Spring Boot]&#xa;Session cookie, прокси" vertex="1">
+                    <mxGeometry height="120" width="240" x="840" y="670" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-5" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;" value="API&#xa;[Container: Spring Boot]" vertex="1">
+                    <mxGeometry height="120" width="240" x="1230" y="670" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-6" parent="1" style="shape=cylinder3;size=15;whiteSpace=wrap;boundedLbl=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" value="Витрина отчётов&#xa;[Container: ClickHouse, OLAP]" vertex="1">
+                    <mxGeometry height="120" width="240" x="1230" y="410" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-7" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" value="ETL-процесс&#xa;[Container: Apache Airflow]&#xa;DAG: extract CRM и телеметрии → join по prosthesis_id → load в витрину" vertex="1">
+                    <mxGeometry height="120" width="240" x="1640" y="670" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-8" parent="1" style="shape=cylinder3;size=15;whiteSpace=wrap;boundedLbl=1;fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;" value="CRM DB&#xa;[Container: Oracle Database 12]" vertex="1">
+                    <mxGeometry height="120" width="240" x="1800" y="900" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-9" parent="1" style="shape=cylinder3;size=15;whiteSpace=wrap;boundedLbl=1;fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;" value="База данных телеметрии&#xa;[Container: PostgreSQL]" vertex="1">
+                    <mxGeometry height="120" width="240" x="1490" y="900" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-10" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-2" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;" target="-xMq_uD2EmP-k2mOuU7w-3" value="Открыть отчёт">
+                    <mxGeometry relative="1" x="0.0769" y="10" as="geometry">
+                        <mxPoint as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="360" y="730"/>
+                            <mxPoint x="360" y="730"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-11" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-3" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#005700;fontColor=#000000;" target="-xMq_uD2EmP-k2mOuU7w-4" value="Запрос отчёта,&amp;nbsp;&lt;div&gt;session cookie&amp;nbsp;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;[HTTPS]&lt;/span&gt;&lt;/div&gt;">
+                    <mxGeometry relative="1" x="-0.0345" y="20" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-12" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-4" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;strokeColor=#005700;fontColor=#000000;" target="-xMq_uD2EmP-k2mOuU7w-5" value="Прокси, Bearer (server-side)">
+                    <mxGeometry relative="1" y="20" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-13" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-5" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;" target="-xMq_uD2EmP-k2mOuU7w-6" value="Выборка по своему prosthesis_id">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-14" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-7" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;" target="-xMq_uD2EmP-k2mOuU7w-6" value="Загрузка витрины (Load)">
+                    <mxGeometry relative="1" x="0.3469" as="geometry">
+                        <mxPoint as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="1760" y="470"/>
+                        </Array>
+                        <mxPoint x="1710" y="470" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-15" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-7" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;entryX=0.21;entryY=0.034;entryDx=0;entryDy=0;entryPerimeter=0;" target="-xMq_uD2EmP-k2mOuU7w-8" value="Выгрузка данных">
+                    <mxGeometry relative="1" x="-0.1234" as="geometry">
+                        <mxPoint as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="1850" y="845"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-16" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-7" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;entryX=0.792;entryY=0.027;entryDx=0;entryDy=0;entryPerimeter=0;" target="-xMq_uD2EmP-k2mOuU7w-9" value="Выгрузка телеметрии">
+                    <mxGeometry relative="1" x="-0.1169" as="geometry">
+                        <mxPoint as="offset"/>
+                        <Array as="points">
+                            <mxPoint x="1680.08" y="820"/>
+                            <mxPoint x="1680.08" y="820"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
