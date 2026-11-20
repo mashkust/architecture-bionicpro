@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="7rW4Ty7C4tza7TNxfSiq" name="Reports">
-        <mxGraphModel dx="2358" dy="2106" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="572" dy="366" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -25,10 +25,10 @@
                 <mxCell id="-xMq_uD2EmP-k2mOuU7w-6" parent="1" style="shape=cylinder3;size=15;whiteSpace=wrap;boundedLbl=1;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" value="Витрина отчётов&#xa;[Container: ClickHouse, OLAP]" vertex="1">
                     <mxGeometry height="120" width="240" x="1230" y="410" as="geometry"/>
                 </mxCell>
-                <mxCell id="-xMq_uD2EmP-k2mOuU7w-7" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" value="ETL-процесс&#xa;[Container: Apache Airflow]&#xa;DAG: extract CRM и телеметрии → join по prosthesis_id → load в витрину" vertex="1">
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-7" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#f0a30a;fontColor=#000000;strokeColor=#BD7000;" value="ETL-процесс&#xa;[Container: Apache Airflow]" vertex="1">
                     <mxGeometry height="120" width="240" x="1640" y="670" as="geometry"/>
                 </mxCell>
-                <mxCell id="-xMq_uD2EmP-k2mOuU7w-8" parent="1" style="shape=cylinder3;size=15;whiteSpace=wrap;boundedLbl=1;fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;" value="CRM DB&#xa;[Container: Oracle Database 12]" vertex="1">
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-8" parent="1" style="shape=cylinder3;size=15;whiteSpace=wrap;boundedLbl=1;fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;" value="CRM DB&#xa;[Container: Oracle Database 12]" vertex="1">
                     <mxGeometry height="120" width="240" x="1800" y="900" as="geometry"/>
                 </mxCell>
                 <mxCell id="-xMq_uD2EmP-k2mOuU7w-9" parent="1" style="shape=cylinder3;size=15;whiteSpace=wrap;boundedLbl=1;fillColor=#23A2D9;fontColor=#ffffff;strokeColor=#0E7DAD;" value="База данных телеметрии&#xa;[Container: PostgreSQL]" vertex="1">
@@ -53,7 +53,7 @@
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="-xMq_uD2EmP-k2mOuU7w-13" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-5" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;" target="-xMq_uD2EmP-k2mOuU7w-6" value="Выборка по своему prosthesis_id">
+                <mxCell id="-xMq_uD2EmP-k2mOuU7w-13" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-5" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;" target="-xMq_uD2EmP-k2mOuU7w-6" value="Чтение">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="-xMq_uD2EmP-k2mOuU7w-14" edge="1" parent="1" source="-xMq_uD2EmP-k2mOuU7w-7" style="endArrow=classic;html=1;edgeStyle=orthogonalEdgeStyle;" target="-xMq_uD2EmP-k2mOuU7w-6" value="Загрузка витрины (Load)">
