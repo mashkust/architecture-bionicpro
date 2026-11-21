@@ -40,3 +40,31 @@ services:
       REACT_APP_KEYCLOAK_URL: http://localhost:8080
       REACT_APP_KEYCLOAK_REALM: reports-realm
       REACT_APP_KEYCLOAK_CLIENT_ID: reports-frontend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      CLICKHOUSE_HOST: host.docker.internal
+      CLICKHOUSE_PORT: "9000"
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: reports-realm
+      KEYCLOAK_ISSUER: http://localhost:8080/realms/reports-realm
+      JWT_AUDIENCE: ""
+      REQUIRED_ROLES: prothetic_user,administrator
+      AIRFLOW_URL: http://airflow:8080
+      AIRFLOW_USERNAME: ${AIRFLOW_USERNAME:-admin}
+      AIRFLOW_PASSWORD: ${AIRFLOW_PASSWORD:-admin}
+    networks:
+      - default
+      - shared
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - keycloak
+
+networks:
+  shared:
+    name: bionicpro_shared
