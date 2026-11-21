@@ -24,7 +24,7 @@ docker compose up -d
 
 1. Открыть http://localhost:3000, нажать Login, пройти авторизацию через страницу Keycloak, убедиться в редиректе обратно в приложение.
 
-2. Проверка через Network: в запросе к /protocol/openid-connect/auth присутствуют параметры code_challenge и code_challenge_method=S256, в обмене кода на токен присутствует code_verifier.
+2. Проверка через Network: в запросе к /protocol/openid-connect/auth присутствуют параметры `code_challenge` и `code_challenge_method=S256`, в обмене кода на токен присутствует `code_verifier`.
 
 3. Проверка настроек клиента в консоли Keycloak:
    - открыть http://localhost:8080, войти как admin / admin, выбрать realm reports-realm;
@@ -32,7 +32,7 @@ docker compose up -d
    - в блоке Capability config поле Proof Key for Code Exchange Code Challenge Method должно быть S256 (не none), переключатель Direct access grants - выключен.
    - В ответе должен быть pkce.code.challenge.method со значением S256, а directAccessGrantsEnabled отсутствовать. Если вместо S256 указано none — realm не переимпортировался, нужно выполнить docker compose down -v и docker compose up -d.
 
-4. Проверка отключения password-гранта: POST к /realms/reports-realm/protocol/openid-connect/token с grant_type=password для клиента reports-frontend должен вернуть ошибку unauthorized_client.
+4. Проверка отключения password-гранта: POST к /realms/reports-realm/protocol/openid-connect/token с `grant_type=password` для клиента reports-frontend должен вернуть ошибку `unauthorized_client`.
 
 ```bash
 curl -s -X POST http://localhost:8080/realms/reports-realm/protocol/openid-connect/token \
@@ -77,3 +77,43 @@ docker compose -f airflow/docker-compose.yaml exec clickhouse clickhouse-client 
 | prothetic1@example.com | 3      | 3330     |
 | prothetic2@example.com | 2      | 3450     |
 | prothetic3@example.com | 2      | 1400     |
+
+### Задача 3. Разработать бэкенд API отчётов (Python/FastAPI).
+
+Бэкенд в `backend/` (FastAPI, порт 8000) отдаёт подготовленный отчёт через `GET /reports`. Отчёт не вычисляется на лету: API делает простую выборку из OLAP-витрины `bionicpro.report_mart` (ClickHouse), которую заранее собрал Airflow DAG `bionicpro_etl_reports`.
+
+Пользователь определяется по JWT-токену Keycloak (email из claims); токен проверяется по JWKS realm-а (`/realms/reports-realm/protocol/openid-connect/certs`). Доступ к отчётам ограничен ролями `prothetic_user` / `administrator` - 403 для остальных.
+
+#### Запуск локально
+
+```bash
+docker compose -f airflow/docker-compose.yaml up -d
+docker compose up -d --build
+```
+
+API: http://localhost:8000, документация OpenAPI — http://localhost:8000/docs.
+
+#### Проверка
+
+1. Авторизованный путь: открыть http://localhost:3000, войти как `prothetic1` / `prothetic123`, нажать Download Report — фронтенд шлёт `GET /reports` с Bearer-токеном.
+
+2. Ошибки: без токена — `401`; роль `user` (user1) — `403`; нет данных за дату — `404`; недоступен ClickHouse — `503`.
+
+### Задача 4. Ограничить доступ к эндпоинту отчётности
+
+Доступ к отчёту предоставляется только в отношении себя: пользователь не может запросить отчёт другого пользователя. Email всегда берётся из проверенного JWT, а опциональный параметр `user` разрешён только если он совпадает с ним — иначе `403`.
+
+#### Проверка
+
+Проверка через контейнерный API (порт 8000), токен берётся из браузера: войти на http://localhost:3000 как `prothetic1` / `prothetic123`, открыть DevTools (вкладка Network), в запросе к `/reports` скопировать значение заголовка `Authorization` (Bearer-токен).
+
+```bash
+TOKEN=<скопированный Bearer-токен>
+
+# свой отчёт — 200 (параметр user совпадает)
+curl -s -H "Authorization: $TOKEN" "http://localhost:8000/reports?user=prothetic1@example.com"
+
+# чужой отчёт — 403
+curl -s -H "Authorization: $TOKEN" "http://localhost:8000/reports?user=prothetic2@example.com"
+# -> {"detail":"Access to another user's report is forbidden"}
+```

@@ -2,3 +2,5 @@
 2024__yandex-architecture-sso.code-workspace
 __pycache__/
 *.pyc
+backend/.venv/
+__pycache__/
