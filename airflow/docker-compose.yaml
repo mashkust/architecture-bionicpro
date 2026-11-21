@@ -52,8 +52,13 @@ services:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////opt/airflow/airflow.db
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+      AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth
       AIRFLOW_CONN_CRM_POSTGRES: postgresql://crm_user:crm_password@crm_db:5432/crm
       AIRFLOW_CONN_TELEMETRY_POSTGRES: postgresql://telemetry_user:telemetry_password@telemetry_db:5432/telemetry
+    networks:
+      - default
+      - shared
     volumes:
       - ./dags:/opt/airflow/dags
       - airflow_metadata:/opt/airflow
@@ -70,7 +75,7 @@ services:
       bash -c "
         pip install --quiet clickhouse-driver apache-airflow-providers-postgres &&
         airflow db init &&
-        (airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com || true) &&
+        (airflow users create --username ${AIRFLOW_USERNAME:-admin} --password ${AIRFLOW_PASSWORD:-admin} --firstname Admin --lastname User --role Admin --email admin@example.com || true) &&
         (airflow webserver & airflow scheduler)
       "
 
@@ -79,3 +84,7 @@ volumes:
   telemetry_pg_data:
   clickhouse_data:
   airflow_metadata:
+
+networks:
+  shared:
+    name: bionicpro_shared

@@ -18,6 +18,10 @@ class Settings:
     required_roles: frozenset = frozenset({"prothetic_user", "administrator"})
     auth_disabled: bool = False
     cors_origins: tuple = ("http://localhost:3000",)
+    airflow_url: str = "http://localhost:8080"
+    airflow_username: str | None = None
+    airflow_password: str | None = None
+    airflow_dag_id: str = "bionicpro_etl_reports"
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -39,4 +43,8 @@ class Settings:
             required_roles=roles,
             auth_disabled=_env_flag("DISABLE_AUTH"),
             cors_origins=origins,
+            airflow_url=os.getenv("AIRFLOW_URL", "http://localhost:8080").rstrip("/"),
+            airflow_username=os.getenv("AIRFLOW_USERNAME") or None,
+            airflow_password=os.getenv("AIRFLOW_PASSWORD") or None,
+            airflow_dag_id=os.getenv("AIRFLOW_DAG_ID", "bionicpro_etl_reports"),
         )

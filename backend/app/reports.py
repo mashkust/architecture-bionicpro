@@ -1,16 +1,25 @@
 import csv
 import io
 import re
-from datetime import date
+import uuid
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from fastapi.responses import JSONResponse
 
+from .airflow import AirflowClient, AirflowError
 from .auth import Identity, TokenVerifier, resolve_identity
 from .config import Settings
 from .olap import REPORT_METRICS, OlapClient, OlapError
 
 
-def build_reports_router(settings: Settings, olap: OlapClient, verifier: TokenVerifier) -> APIRouter:
+def _safe_email_slug(email: str) -> str:
+    return re.sub(r"[^\w.-]", "_", email)
+
+
+def build_reports_router(
+    settings: Settings, olap: OlapClient, verifier: TokenVerifier, airflow: AirflowClient
+) -> APIRouter:
     router = APIRouter()
 
     def current_identity(request: Request) -> Identity:
@@ -48,6 +57,89 @@ def build_reports_router(settings: Settings, olap: OlapClient, verifier: TokenVe
             return _build_csv(report)
         return report
 
+    @router.post("/reports/generate")
+    def generate_report(identity: Identity = Depends(current_identity)):
+        try:
+            target_day = olap.get_latest_telemetry_day()
+        except OlapError as exc:
+            raise HTTPException(status_code=503, detail=f"OLAP storage unavailable: {exc}") from exc
+
+        if target_day is None:
+            raise HTTPException(
+                status_code=409,
+                detail="Nothing to generate: no telemetry data in ClickHouse",
+            )
+        if target_day >= datetime.now(timezone.utc).date():
+            raise HTTPException(
+                status_code=409,
+                detail="Latest telemetry is from today; the day interval is not complete yet",
+            )
+
+        report_date_iso = target_day.isoformat()
+        safe_email = _safe_email_slug(identity.email)
+        dag_run_id = (
+            f"generate_{safe_email}_{target_day.strftime('%Y%m%d')}_{uuid.uuid4().hex[:6]}"
+        )
+
+        try:
+            runs = airflow.get_runs_for_date(report_date_iso)
+        except AirflowError as exc:
+            raise HTTPException(status_code=exc.status_code, detail=f"Report generation failed: {exc}") from exc
+
+        for run in runs:
+            state = run.get("state")
+            if state == "success":
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "status": "already_generated",
+                        "dag_run_id": run.get("dag_run_id"),
+                        "report_date": report_date_iso,
+                    },
+                )
+            if state in ("queued", "running"):
+                return JSONResponse(
+                    status_code=202,
+                    content={
+                        "status": "in_progress",
+                        "dag_run_id": run.get("dag_run_id"),
+                        "report_date": report_date_iso,
+                    },
+                )
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    f"Previous generation run {run.get('dag_run_id')} is {state}; "
+                    "resolve it in the Airflow UI before retrying"
+                ),
+            )
+
+        try:
+            run = airflow.trigger_dag_run(dag_run_id, report_date_iso)
+        except AirflowError as exc:
+            if exc.status_code == 409:
+                return JSONResponse(
+                    status_code=202,
+                    content={
+                        "status": "in_progress",
+                        "dag_run_id": dag_run_id,
+                        "report_date": report_date_iso,
+                    },
+                )
+            raise HTTPException(
+                status_code=exc.status_code,
+                detail=f"Report generation failed: {exc}",
+            ) from exc
+
+        return JSONResponse(
+            status_code=202,
+            content={
+                "status": "started",
+                "dag_run_id": run.get("dag_run_id"),
+                "report_date": report_date_iso,
+            },
+        )
+
     @router.get("/health")
     def health():
         return {"status": "ok"}
@@ -64,7 +156,7 @@ def _build_csv(report: dict) -> Response:
     writer.writerow(header)
     writer.writerow(row)
 
-    safe_email = re.sub(r"[^\w.@+-]", "_", report["email"])
+    safe_email = _safe_email_slug(report["email"])
     safe_date = re.sub(r"[^\w-]", "_", report["report_date"])
     filename = f"report_{safe_email}_{safe_date}.csv"
     return Response(
