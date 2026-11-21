@@ -49,6 +49,18 @@ class OlapClient:
             return round(value, 2)
         return value
 
+    def get_latest_telemetry_day(self) -> date | None:
+        client = self._connect()
+        try:
+            rows = self._execute(
+                client,
+                "SELECT max(toDate(recorded_at)) FROM bionicpro.telemetry",
+                {},
+            )
+        finally:
+            client.disconnect()
+        return rows[0][0] if rows and rows[0][0] is not None else None
+
     def get_report(self, email: str, report_date: date | None = None) -> dict | None:
         client = self._connect()
         try:

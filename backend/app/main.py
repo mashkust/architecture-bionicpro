@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .airflow import AirflowClient
 from .auth import TokenVerifier
 from .config import Settings
 from .olap import OlapClient
@@ -11,6 +12,7 @@ def create_app(settings: Settings | None = None, olap: OlapClient | None = None)
     settings = settings or Settings.from_env()
     olap = olap or OlapClient(settings)
     verifier = TokenVerifier(settings)
+    airflow = AirflowClient(settings)
 
     app = FastAPI(title="BionicPRO Reports API", version="1.0.0")
     app.add_middleware(
@@ -19,7 +21,7 @@ def create_app(settings: Settings | None = None, olap: OlapClient | None = None)
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.include_router(build_reports_router(settings, olap, verifier))
+    app.include_router(build_reports_router(settings, olap, verifier, airflow))
     return app
 
 

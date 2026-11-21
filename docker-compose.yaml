@@ -54,7 +54,17 @@ services:
       KEYCLOAK_ISSUER: http://localhost:8080/realms/reports-realm
       JWT_AUDIENCE: ""
       REQUIRED_ROLES: prothetic_user,administrator
+      AIRFLOW_URL: http://airflow:8080
+      AIRFLOW_USERNAME: ${AIRFLOW_USERNAME:-admin}
+      AIRFLOW_PASSWORD: ${AIRFLOW_PASSWORD:-admin}
+    networks:
+      - default
+      - shared
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       - keycloak
+
+networks:
+  shared:
+    name: bionicpro_shared
